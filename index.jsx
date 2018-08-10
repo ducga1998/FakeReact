@@ -32,16 +32,22 @@ class Test extends Component{
 class App extends Component {
     constructor(props) {
         super(props);
-        this.state = {counter: 0};
+        this.state = {counter: 213};
         this.onIncrease = this.onIncrease.bind(this);
         this.onDecrease = this.onDecrease.bind(this);
     }
 
     componentDidMount() {
-        console.log(this)
     }
-    
+    // static getDerivedStateFromProps(state , props) {
+    //     return true
+    // }
+    getSnapshotBeforeUpdate(a, b) {
+        console.log("cahsciahscaisuh")
+        console.log(a,b)
 
+        return true
+    }
     onIncrease() {
         this.setState({counter: this.state.counter + 1});
     }
@@ -51,7 +57,6 @@ class App extends Component {
     }
 
     render() {
-        console.log("thishciasc , ", this)
         const {counter} = this.state;
         return (
             <div>

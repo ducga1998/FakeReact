@@ -9,11 +9,11 @@ const createElement = (type, props, ...children) => {
 const setAttribute = (dom, key, value) => {
     if (typeof value == 'function' && key.startsWith('on')) {
         const eventType = key.slice(2).toLowerCase();
-        dom.__gooactHandlers = dom.__gooactHandlers || {};
-        dom.removeEventListener(eventType, dom.__gooactHandlers[eventType]);
+        dom._FakeReactHandlers = dom._FakeReactHandlers || {};
+        dom.removeEventListener(eventType, dom._FakeReactHandlers[eventType]);
         console.dir(dom)
-        dom.__gooactHandlers[eventType] = value;
-        dom.addEventListener(eventType, dom.__gooactHandlers[eventType]);
+        dom._FakeReactHandlers[eventType] = value;
+        dom.addEventListener(eventType, dom._FakeReactHandlers[eventType]);
     } else if (key == 'checked' || key == 'value' || key == 'className') {
         dom[key] = value;
     } else if (key == 'style' && typeof value == 'object') {
@@ -21,7 +21,7 @@ const setAttribute = (dom, key, value) => {
     } else if (key == 'ref' && typeof value == 'function') {
         value(dom);
     } else if (key == 'key') {
-        dom.__gooactKey = value;
+        dom._FakeReactKey = value;
     } else if (typeof value != 'object' && typeof value != 'function') {
         dom.setAttribute(key, value);
     }
@@ -54,20 +54,26 @@ const render = (vdom, parent=null) => {
 };
 // path x
 const patch = (dom, vdom, parent=dom.parentNode) => {
+    console.log("tesst dom ", dom , "tesst vdom ", vdom , "parent" , parent)
     const replace = parent ? el => (parent.replaceChild(el, dom) && el) : (el => el);
+    // case vdom.type is class , and vdom object
     if (typeof vdom == 'object' && typeof vdom.type == 'function') {
         return Component.patch(dom, vdom, parent);
-    } else if (typeof vdom != 'object' && dom instanceof Text) {
+    } 
+    else if (typeof vdom != 'object' && dom instanceof Text) {
         return dom.textContent != vdom ? replace(render(vdom, parent)) : dom;
-    } else if (typeof vdom == 'object' && dom instanceof Text) {
+    } 
+    else if (typeof vdom == 'object' && dom instanceof Text) {
         return replace(render(vdom, parent));
-    } else if (typeof vdom == 'object' && dom.nodeName != vdom.type.toUpperCase()) {
+    } 
+    else if (typeof vdom == 'object' && dom.nodeName != vdom.type.toUpperCase()) {
         return replace(render(vdom, parent));
-    } else if (typeof vdom == 'object' && dom.nodeName == vdom.type.toUpperCase()) {
+    } 
+    else if (typeof vdom == 'object' && dom.nodeName == vdom.type.toUpperCase()) {
         const pool = {};
         const active = document.activeElement;
         [].concat(...dom.childNodes).map((child, index) => {
-            const key = child.__gooactKey || `index_${index}`;
+            const key = child._FakeReactKey || `index_${index}`;
             pool[key] = child;
         });
         [].concat(...vdom.children).map((child, index) => {
@@ -76,7 +82,7 @@ const patch = (dom, vdom, parent=dom.parentNode) => {
             delete pool[key];
         });
         for (const key in pool) {
-            const instance = pool[key].__gooactInstance;
+            const instance = pool[key]._FakeReactInstance;
             if (instance) instance.componentWillUnmount();
             pool[key].remove();
         }
@@ -105,12 +111,19 @@ class Component {
         if (Component.isPrototypeOf(vdom.type)) {
             const instance = new (vdom.type)(props); // instance is vdom 
             console.log("instance"  ,instance)
+            // if(instance._FakeReactClass.getDerivedStateFromProps){
+            //     instance._FakeReactClass.getDerivedStateFromProps(this.props, this.state)
+            // }
            
+           //save object base in instance, why ??
+           // save instance in base, when setState , we will use object base get instance 
             instance.base = render(instance.render(), parent);
             // save instance and key
-            instance.base.__gooactInstance = instance;
-            instance.base.__gooactKey = vdom.props.key;
+            instance.base._FakeReactClass  = vdom.type
+            instance.base._FakeReactInstance = instance;
+            instance.base._FakeReactKey = vdom.props.key;
             instance.componentDidMount();
+            console.log("instance.base "  , instance.base)
             return instance.base;
         } else {
             // TH nó là function chẳng hạn mà ko phải là một class extends Component
@@ -121,12 +134,13 @@ class Component {
     //     const props = Object.assign({} ,  vdom.props, {children : vdom.children})
     //     if(Component.is )
     // }
+    // mỗi dom sẽ lưu các thông tin nha instance , key
     static patch(dom, vdom, parent=dom.parentNode) {
         const props = Object.assign({}, vdom.props, {children: vdom.children});
-        if (dom.__gooactInstance && dom.__gooactInstance.constructor == vdom.type) {
-            dom.__gooactInstance.componentWillReceiveProps(props);
-            dom.__gooactInstance.props = props;
-            return patch(dom, dom.__gooactInstance.render(), parent);
+        if (dom._FakeReactInstance && dom._FakeReactInstance.constructor == vdom.type) {
+            // Component.getDerivedStateFromProps(props, this.state);
+            dom._FakeReactInstance.props = props;
+            return patch(dom, dom._FakeReactInstance.render(), parent);
         } else if (Component.isPrototypeOf(vdom.type)) {
             const ndom = Component.render(vdom, parent);
             return parent ? (parent.replaceChild(ndom, dom) && ndom) : (ndom);
@@ -134,40 +148,64 @@ class Component {
             return patch(dom, vdom.type(props), parent);
         }
     }
-    static patch(dom , vdom , parent = dom.parentNode) {
-        const props  = Object.assign({}, vdom.props , { children : vdom.children})
-        // if(dom.__gooactInstance && dom.__gooactInstance.con)
-    }
+    // static patch(dom , vdom , parent = dom.parentNode) {
+    //     const props  = Object.assign({}, vdom.props , { children : vdom.children})
+    //     // if(dom._FakeReactInstance && dom._FakeReactInstance.con)
+    // }
     setState(next) {
-        
+            // check state is object and is  para object ??
         const compat = (a) => typeof this.state == 'object' && typeof a == 'object';
-        if (this.base && this.shouldComponentUpdate(this.props, next)) {
-            const prevState = this.state;
-            this.componentWillUpdate(this.props, next);
-            this.state = compat(next) ? Object.assign({}, this.state, next) : next;
-            patch(this.base, this.render());
-            this.componentDidUpdate(this.props, prevState);
+         // i want getDerivedStateFromProps check update
+        if (this.base ) {
+            if(this.base._FakeReactClass.getDerivedStateFromProps && this.base._FakeReactClass.getDerivedStateFromProps(this.state, this.props) ){
+                const prevState = this.state;
+                this.state = compat(next) ? Object.assign({}, this.state, next) : next; //new state
+                this.shouldComponentUpdate(this.props ,this.state )
+                patch(this.base, this.render()); // process render
+                this.getSnapshotBeforeUpdate(this.props ,prevState )
+                this.componentDidUpdate(this.props, prevState);
+            }
+            else if(this.base._FakeReactClass.getDerivedStateFromProps && !this.base._FakeReactClass.getDerivedStateFromProps(this.state, this.props)){
+
+            }
+            else if(Component.getDerivedStateFromProps(this.props, this.state)){
+                const prevState = this.state;
+                this.state = compat(next) ? Object.assign({}, this.state, next) : next; //new state
+                this.shouldComponentUpdate(this.props ,this.state )
+                patch(this.base, this.render()); // process render
+                this.getSnapshotBeforeUpdate(this.props ,prevState )
+                this.componentDidUpdate(this.props, prevState);
+            }
+
+            
+            // if(this.base._FakeReactClass.getDerivedStateFromProps){
+            //     this.base._FakeReactClass.getDerivedStateFromProps(this.props, this.state)
+            // }
+            // else{
+            //     Component.getSnapshotBeforeUpdate(nextProps , preState)
+            // }
+            // f
+            
         } else {
             this.state = compat(next) ? Object.assign({}, this.state, next) : next;
         }
     }
 
-    shouldComponentUpdate(nextProps, nextState) {
+    getSnapshotBeforeUpdate(prevProps, prevState) {
         return nextProps != this.props || nextState != this.state;
     }
 
-    componentWillReceiveProps(nextProps) {
-        return undefined;
+    static getDerivedStateFromProps(nextProps , preState) {
+        return true;
     }
 
-
+    shouldComponentUpdate(nextState, nextProps){
+        return undefined;
+    }
     componentDidUpdate(prevProps, prevState) {
         return undefined;
     }
 
-    componentWillMount() {
-        return undefined;
-    }
 
     componentDidMount() {
         return undefined;
