@@ -1,6 +1,8 @@
-# FakeReact
-Iam will fake one lir the same react that 160 javascript line code , Yeahhh it's fucking cool
-guild line : 
+Project use : 
+1 : algo backtracking 
+2 : es5 javascript 
+3 : class es6
+4 : setup environment : webpack, babel, npm
 B1 : config jsx : 
 ```{
   "presets": ["stage-2"],
@@ -43,4 +45,7 @@ module.exports = {
     watch : true
 };
 ```
+b3 : code  reactFake.js
+b4 : use the same react in file index.jsx
 Use FakeReact, write code in index.jsx 
+
