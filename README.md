@@ -4,7 +4,8 @@ Project use :
 3 : class es6
 4 : setup environment : webpack, babel, npm
 B1 : config jsx : 
-```{
+``` json
+{
   "presets": ["stage-2"],
   "plugins": [
     "transform-class-properties",
@@ -19,7 +20,7 @@ B1 : config jsx :
 }
 ```
 B2 : config webpack : 
-```
+``` javascript
 const fs = require("fs");
 const path = require("path");
 
