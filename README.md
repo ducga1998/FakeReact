@@ -43,3 +43,4 @@ module.exports = {
     watch : true
 };
 ```
+Use FakeReact, write code in index.jsx 
