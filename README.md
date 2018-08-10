@@ -1,8 +1,13 @@
 Project use : 
-1 : algo backtracking 
+
+1 : algo backtracking
+
 2 : es5 javascript 
+
 3 : class es6
+
 4 : setup environment : webpack, babel, npm
+
 B1 : config jsx : 
 ``` json
 {
@@ -47,6 +52,8 @@ module.exports = {
 };
 ```
 b3 : code  reactFake.js
+
 b4 : use the same react in file index.jsx
+
 Use FakeReact, write code in index.jsx 
 
