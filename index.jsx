@@ -14,7 +14,21 @@ class Title extends Component {
         );
     }
 }
-
+ const  B  = () => {
+     return (
+         <h1>Nguyen Dinh Nguyen</h1>
+     )
+ }
+class Test extends Component{
+    componentDidMount(){
+        console.log("compontent did mount")
+    }
+     render(){
+         return (
+             <p> cashuasvc</p>
+         )
+     }
+}
 class App extends Component {
     constructor(props) {
         super(props);
@@ -41,7 +55,10 @@ class App extends Component {
         const {counter} = this.state;
         return (
             <div>
-                <Title>Hello Gooact!!!!</Title>
+                <Title>HAAHAAAAA</Title>
+                <h1>nguyen minh duc</h1>
+                <Test />
+                <B />
                 <p>
                     <button onClick={this.onDecrease}>-</button>
                     {' '}Counter: {counter}{' '}
@@ -55,6 +72,5 @@ class App extends Component {
 // 
 // console.log(window.c)
 const A = <h1>cascas</h1>
-
-console.log(A)
+console.log(<App />)
 render(<App/>, document.getElementById('root'));
