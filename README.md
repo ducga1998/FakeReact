@@ -1,14 +1,14 @@
 Project use : 
 
-1 : algo backtracking
+1 : Algo backtracking
 
-2 : es5 javascript 
+2 : Es5 javascript 
 
-3 : class es6
+3 : Class es6
 
-4 : setup environment : webpack, babel, npm
+4 : Setup environment : webpack, babel, npm
 
-B1 : config jsx : 
+B1 : Config jsx : 
 ``` json
 {
   "presets": ["stage-2"],
@@ -24,7 +24,7 @@ B1 : config jsx :
   ]
 }
 ```
-B2 : config webpack : 
+B2 : Config webpack : 
 ``` javascript
 const fs = require("fs");
 const path = require("path");
@@ -51,9 +51,9 @@ module.exports = {
     watch : true
 };
 ```
-b3 : code  reactFake.js
+b3 : Code  reactFake.js
 
-b4 : use the same react in file index.jsx
+b4 : Use the same react in file index.jsx
 
 Use FakeReact, write code in index.jsx 
 
